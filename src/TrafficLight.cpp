@@ -1,6 +1,11 @@
 #include <iostream>
 #include <random>
+#include <thread>
+#include <chrono>
 #include "TrafficLight.h"
+#include <stdlib.h>     /* srand, rand */
+#include <time.h>       /* time */
+
 
 /* Implementation of class "MessageQueue" */
 
@@ -23,11 +28,12 @@ void MessageQueue<T>::send(T &&msg)
 
 /* Implementation of class "TrafficLight" */
 
-/* 
+/* see header file
 TrafficLight::TrafficLight()
 {
     _currentPhase = TrafficLightPhase::red;
 }
+*/
 
 void TrafficLight::waitForGreen()
 {
@@ -44,15 +50,34 @@ TrafficLightPhase TrafficLight::getCurrentPhase()
 void TrafficLight::simulate()
 {
     // FP.2b : Finally, the private method „cycleThroughPhases“ should be started in a thread when the public method „simulate“ is called. To do this, use the thread queue in the base class. 
+    std::thread phaseThread(cycleThroughPhases);
+    //phaseThread.join();
 }
 
 // virtual function which is executed in a thread
 void TrafficLight::cycleThroughPhases()
 {
-    // FP.2a : Implement the function with an infinite loop that measures the time between two loop cycles 
+    // FP.2a : 
+    // X Implement the function with an infinite loop that measures the time between two loop cycles 
     // and toggles the current phase of the traffic light between red and green and sends an update method 
     // to the message queue using move semantics. The cycle duration should be a random value between 4 and 6 seconds. 
-    // Also, the while-loop should use std::this_thread::sleep_for to wait 1ms between two cycles. 
-}
+    // X Also, the while-loop should use std::this_thread::sleep_for to wait 1ms between two cycles. 
+    while(true)
+    {
+        auto start = std::chrono::system_clock::now();
 
-*/
+        /* initialize random seed: */
+        srand (time(NULL));
+
+        /* generate secret number between 1 and 10: */
+        auto durationRandom = std::rand() % 6 + 4;
+        std::cout << "duration: " << durationRandom << std::endl;
+        
+        auto end = std::chrono::system_clock::now();
+
+        std::chrono::duration<double> diff = end - start;
+        std::cout << diff.count() << " s\n";
+
+        std::this_thread::sleep_for(std::chrono::milliseconds(1));
+    }
+}
