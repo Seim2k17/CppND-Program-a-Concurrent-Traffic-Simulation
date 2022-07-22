@@ -31,7 +31,7 @@ void MessageQueue::send(TrafficLightPhase &&msg)
     // perform queue mod under lock
     std::lock_guard<std::mutex> lock(_mutex);
 
-    _queue.push_back(std::move(msg));
+    _queue.emplace_back(std::move(msg));
     _cond.notify_one(); // notify client after pushing new message into queue
 }
 
@@ -79,15 +79,15 @@ void TrafficLight::cycleThroughPhases()
     // X Also, the while-loop should use std::this_thread::sleep_for to wait 1ms between two cycles. 
 
     std::random_device randDevice;
-    std::mt19937 mt(randDevice());
-    std::uniform_real_distribution<double> distribution(4.0, 6.0);
+    static std::mt19937 mt(randDevice());
+    static std::uniform_real_distribution<double> distribution(4000, 6000);
     float randomTime = distribution(mt);
 
     auto start = std::chrono::system_clock::now();
 
     while(true)
     {
-        auto timeDelta = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now() - start).count();
+        auto timeDelta = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - start).count();
 
         std::this_thread::sleep_for(std::chrono::milliseconds(1));
 
